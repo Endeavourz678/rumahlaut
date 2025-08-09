@@ -1,0 +1,2558 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Penjualan Ikan - Enhanced</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        /* Header Style */
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Menu Navigation */
+        .menu {
+            background-color: #34495e;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .menu ul {
+            list-style: none;
+            display: flex;
+        }
+
+        .menu li {
+            border-right: 1px solid #2c3e50;
+        }
+
+        .menu a {
+            display: block;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .menu a:hover, .menu a.active {
+            background-color: #2c3e50;
+        }
+
+        /* Main Content */
+        .content {
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .content h2 {
+            margin-bottom: 15px;
+            font-size: 20px;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 5px;
+        }
+
+        /* Form Styles */
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        /* Classic Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #ecf0f1;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        /* Transaction Form */
+        .transaction-items {
+            margin: 20px 0;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .item-input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .item-input-row input, .item-input-row select {
+            padding: 5px;
+            border: 1px solid #ccc;
+        }
+
+        /* Price Override Indicator */
+        .price-override {
+            background-color: #fff3cd !important;
+            border: 1px solid #ffeaa7 !important;
+        }
+
+        .price-override-indicator {
+            color: #856404;
+            font-weight: bold;
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        /* Summary Box */
+        .summary-box {
+            background-color: #ecf0f1;
+            padding: 15px;
+            margin-top: 20px;
+            border: 2px solid #34495e;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .summary-row.total {
+            font-size: 18px;
+            font-weight: bold;
+            border-top: 2px solid #34495e;
+            padding-top: 8px;
+        }
+
+        /* Classic Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 600px;
+            border: 2px solid #34495e;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+
+        /* Dashboard Cards - Classic Style */
+        .dashboard-cards {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-card {
+            flex: 1;
+            background-color: #ecf0f1;
+            padding: 20px;
+            border: 2px solid #34495e;
+            text-align: center;
+        }
+
+        .dashboard-card h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .dashboard-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        /* Search Filter Bar - Classic */
+        .search-filter-bar {
+            background-color: #ecf0f1;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+        }
+
+        /* Status Badges - Classic */
+        .status-badge {
+            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 3px;
+        }
+
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-low-stock {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-ok {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        /* Login Box */
+        .login-box {
+            width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 30px;
+            border: 2px solid #34495e;
+        }
+
+        .login-box h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Quantity Controls - Classic Style */
+        .qty-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .qty-btn {
+            background-color: #ecf0f1;
+            border: 1px solid #ccc;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .qty-btn:hover {
+            background-color: #bdc3c7;
+        }
+
+        .qty-input {
+            border: 1px solid #ccc;
+            text-align: center;
+            width: 80px;
+            padding: 4px;
+            margin: 0 2px;
+        }
+        
+        /* Detail List Styling */
+        .detail-list {
+            list-style: none;
+            padding: 0;
+        }
+        .detail-list li {
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            padding: 8px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .detail-list li span:first-child {
+            font-weight: bold;
+        }
+
+
+        /* Print Styles */
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .menu ul {
+                flex-direction: column;
+            }
+            
+            .menu li {
+                border-right: none;
+                border-bottom: 1px solid #2c3e50;
+            }
+            
+            .header-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .dashboard-cards {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loginSection">
+        <div class="login-box">
+            <h2>Login Sistem Penjualan Ikan</h2>
+            <div id="loginAlert"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Username:</label>
+                    <input type="text" id="loginUsername" value="admin" required>
+                </div>
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="password" id="loginPassword" value="admin123" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="mainApp" style="display: none;">
+        <div class="header">
+            <div class="header-info">
+                <div>
+                    <h1>SISTEM PENJUALAN IKAN LAUT - ENHANCED</h1>
+                    <span>User: <span id="currentUser">Admin</span> | <span id="currentDateTime"></span></span>
+                </div>
+                <button class="btn btn-danger" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <nav class="menu">
+                <ul>
+                    <li><a href="#" class="active" onclick="showPage('dashboard')">Dashboard</a></li>
+                    <li><a href="#" onclick="showPage('transaction')">Transaksi Baru</a></li>
+                    <li><a href="#" onclick="showPage('transactions')">Data Transaksi</a></li>
+                    <li><a href="#" onclick="showPage('products')">Master Produk</a></li>
+                    <li><a href="#" onclick="showPage('customers')">Master Customer</a></li>
+                    <li><a href="#" onclick="showPage('reports')">Laporan</a></li>
+                </ul>
+            </nav>
+
+            <div class="content">
+                <div id="dashboardPage" class="page">
+                    <h2>Dashboard</h2>
+                    <div class="dashboard-cards">
+                        <div class="dashboard-card">
+                            <h3>Total Penjualan Hari Ini</h3>
+                            <div class="value">Rp <span id="todaySales">0</span></div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h3>Total Transaksi</h3>
+                            <div class="value"><span id="todayTransactions">0</span></div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h3>Total Customer</h3>
+                            <div class="value"><span id="totalCustomers">0</span></div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h3>Total Stok (kg)</h3>
+                            <div class="value"><span id="totalStock">0</span></div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 30px;">Stok Produk</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Kode</th>
+                                <th>Nama Produk</th>
+                                <th>Kategori</th>
+                                <th>Stok (kg)</th>
+                                <th>Harga/kg</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stockTable">
+                            <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="transactionPage" class="page" style="display: none;">
+                    <h2>Transaksi Penjualan Baru</h2>
+                    <div id="transactionAlert"></div>
+                    
+                    <form id="transactionForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>No. Transaksi:</label>
+                                <input type="text" id="transactionNo" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Tanggal:</label>
+                                <input type="date" id="transactionDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Customer:</label>
+                                <select id="customerId" required onchange="updateShipping()">
+                                    <option value="">-- Pilih Customer --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="transaction-items">
+                            <h3>Detail Barang</h3>
+                            <table id="itemsTable">
+                                <thead>
+                                    <tr>
+                                        <th width="5%">No</th>
+                                        <th width="25%">Produk</th>
+                                        <th width="15%">Harga/kg</th>
+                                        <th width="15%">Berat (kg)</th>
+                                        <th width="15%">Subtotal</th>
+                                        <th width="15%">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemsBody">
+                                    </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="6">
+                                            <button type="button" class="btn btn-primary" onclick="addItem()">+ Tambah Barang</button>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <div class="summary-box">
+                            <div class="summary-row">
+                                <span>Subtotal:</span>
+                                <span>Rp <span id="subtotal">0</span></span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Ongkir:</span>
+                                <span>Rp <span id="shipping">0</span></span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Diskon (%):</span>
+                                <span>
+                                    <input type="number" id="discountPercent" value="0" min="0" max="100" 
+                                           style="width: 60px; padding: 2px;" onchange="calculateTotal()"> %
+                                </span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Pajak (%):</span>
+                                <span>
+                                    <input type="number" id="taxPercent" value="0" min="0" max="50" 
+                                           style="width: 60px; padding: 2px;" onchange="calculateTotal()"> %
+                                </span>
+                            </div>
+                            <div class="summary-row total">
+                                <span>TOTAL:</span>
+                                <span>Rp <span id="grandTotal">0</span></span>
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="margin-top: 20px;">
+                            <div class="form-group">
+                                <label>Metode Pembayaran:</label>
+                                <select id="paymentMethod" required>
+                                    <option value="cash">Tunai</option>
+                                    <option value="transfer">Transfer</option>
+                                    <option value="debit">Kartu Debit</option>
+                                    <option value="credit">Kartu Kredit</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Catatan:</label>
+                                <input type="text" id="notes" placeholder="Catatan transaksi...">
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <button type="submit" class="btn btn-success">Simpan Transaksi</button>
+                            <button type="button" class="btn btn-warning" onclick="resetTransaction()">Reset</button>
+                            <button type="button" class="btn btn-info" onclick="printTransaction()">Cetak</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="transactionsPage" class="page" style="display: none;">
+                    <h2>Data Transaksi</h2>
+                    
+                    <div class="search-filter-bar">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Cari Transaksi:</label>
+                                <input type="text" id="searchTransaction" placeholder="Cari no transaksi, customer..." onkeyup="searchTransactions(this.value)">
+                            </div>
+                            <div class="form-group">
+                                <label>Filter Tanggal:</label>
+                                <input type="date" id="filterDate" onchange="filterByDate()">
+                            </div>
+                            <div class="form-group">
+                                <label>Filter Status:</label>
+                                <select id="filterStatus" onchange="filterByStatus()">
+                                    <option value="">Semua Status</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-primary" onclick="refreshTransactions()">Refresh</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No. Transaksi</th>
+                                <th>Tanggal</th>
+                                <th>Customer</th>
+                                <th>Produk (Jumlah Item)</th>
+                                <th>Total Berat (kg)</th>
+                                <th>Grand Total</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTable">
+                            <tr><td colspan="8" style="text-align: center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                <div id="productsPage" class="page" style="display: none;">
+                    <h2>Master Data Produk</h2>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <button class="btn btn-primary" onclick="showProductForm()">+ Tambah Produk</button>
+                        <button class="btn btn-info" onclick="loadProducts()">Refresh</button>
+                    </div>
+                    
+                    <div id="productsAlert"></div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Kode</th>
+                                <th>Nama Produk</th>
+                                <th>Kategori</th>
+                                <th>Harga Beli/kg</th>
+                                <th>Harga Jual/kg</th>
+                                <th>Stok (kg)</th>
+                                <th>Min. Stok</th>
+                                <th>Supplier</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTable">
+                            <tr><td colspan="9" style="text-align: center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="customersPage" class="page" style="display: none;">
+                    <h2>Master Data Customer</h2>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <button class="btn btn-primary" onclick="showCustomerForm()">+ Tambah Customer</button>
+                        <button class="btn btn-info" onclick="loadCustomers()">Refresh</button>
+                    </div>
+                    
+                    <div id="customersAlert"></div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nama</th>
+                                <th>Telepon</th>
+                                <th>Alamat</th>
+                                <th>Tipe</th>
+                                <th>Ongkir</th>
+                                <th>Total Transaksi</th>
+                                <th>Total Belanja</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customersTable">
+                            <tr><td colspan="9" style="text-align: center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="reportsPage" class="page" style="display: none;">
+                    <h2>Laporan</h2>
+                    <div class="form-row">
+                        <button class="btn btn-primary" onclick="generateReport('daily')">Laporan Harian</button>
+                        <button class="btn btn-primary" onclick="generateReport('monthly')">Laporan Bulanan</button>
+                        <button class="btn btn-primary" onclick="generateReport('product')">Laporan Per Produk</button>
+                        <button class="btn btn-primary" onclick="generateReport('customer')">Laporan Per Customer</button>
+                        <button class="btn btn-primary" onclick="generateReport('stock')">Laporan Stok</button>
+                    </div>
+                    
+                    <div id="reportContent" style="margin-top: 20px;">
+                        <p>Pilih jenis laporan yang ingin dilihat.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Form Produk</h3>
+            </div>
+            <form id="productForm">
+                <input type="hidden" id="editProductId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Kode Produk:</label>
+                        <input type="text" id="productCode" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kategori:</label>
+                        <select id="productCategory">
+                            <option value="Ikan Segar">Ikan Segar</option>
+                            <option value="Ikan Premium">Ikan Premium</option>
+                            <option value="Ikan Lokal">Ikan Lokal</option>
+                            <option value="Seafood">Seafood</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Nama Produk:</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label>Deskripsi:</label>
+                    <textarea id="productDesc" rows="3" style="width: 100%; padding: 8px;" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tanggal Produksi:</label>
+                        <input type="date" id="productionDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Supplier:</label>
+                        <input type="text" id="productSupplier" placeholder="Nama supplier">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Harga Beli/kg:</label>
+                        <input type="number" id="buyPrice" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga Jual/kg:</label>
+                        <input type="number" id="sellPrice" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Stok (kg):</label>
+                        <input type="number" step="0.1" id="stock" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Min. Stok (kg):</label>
+                        <input type="number" step="0.1" id="minStock" value="5">
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button type="submit" class="btn btn-success">Simpan</button>
+                    <button type="button" class="btn btn-danger" onclick="closeModal('productModal')">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="customerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Form Customer</h3>
+            </div>
+            <form id="customerForm">
+                <input type="hidden" id="editCustomerId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nama Customer:</label>
+                        <input type="text" id="customerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipe Customer:</label>
+                        <select id="customerType">
+                            <option value="retail">Retail</option>
+                            <option value="wholesale">Grosir</option>
+                            <option value="restaurant">Restoran</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>No. Telepon:</label>
+                        <input type="tel" id="customerPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" id="customerEmail" placeholder="Opsional">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Alamat:</label>
+                    <textarea id="customerAddress" rows="3" style="width: 100%; padding: 8px;" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Ongkir:</label>
+                        <input type="number" id="customerShipping" value="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Credit Limit:</label>
+                        <input type="number" id="customerCreditLimit" value="0">
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button type="submit" class="btn btn-success">Simpan</button>
+                    <button type="button" class="btn btn-danger" onclick="closeModal('customerModal')">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="transactionDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Detail Transaksi</h3>
+            </div>
+            <div id="transactionDetailContent">
+                </div>
+            <div style="margin-top: 20px;">
+                <button type="button" class="btn btn-primary" onclick="printTransactionDetail()">Cetak</button>
+                <button type="button" class="btn btn-danger" onclick="closeModal('transactionDetailModal')">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global Variables
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        let products = [];
+        let customers = [];
+        let transactions = [];
+        let transactionItems = [];
+        let itemCounter = 0;
+        let editingProductId = null;
+        let editingCustomerId = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (authToken && currentUser) {
+                showMainApp();
+            } else {
+                showLogin();
+            }
+            
+            // Set current date
+            const today = new Date().toISOString().split('T')[0];
+            if (document.getElementById('transactionDate')) {
+                document.getElementById('transactionDate').value = today;
+            }
+            if (document.getElementById('productionDate')) {
+                document.getElementById('productionDate').value = today;
+            }
+            
+            // Update time
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // Start auto-refresh
+            startAutoRefresh();
+            
+            // Check database structure if needed (for debugging)
+            if (window.location.search.includes('debug=1')) {
+                console.log('Debug mode enabled');
+                checkDatabaseStructure();
+                
+                // Add debug panel
+                addDebugPanel();
+            }
+        });
+
+        function addDebugPanel() {
+            const debugPanel = document.createElement('div');
+            debugPanel.innerHTML = `
+                <div style="position: fixed; top: 10px; left: 10px; background: white; border: 1px solid #ccc; padding: 10px; z-index: 1001; font-size: 12px;">
+                    <strong>Debug Panel</strong><br>
+                    <button onclick="checkDatabaseStructure()">Check DB</button>
+                    <button onclick="testTransactionsAPI()">Test Transactions</button>
+                    <button onclick="console.clear()">Clear Console</button>
+                    <button onclick="this.parentElement.style.display='none'">Hide</button>
+                </div>
+            `;
+            document.body.appendChild(debugPanel);
+        }
+
+        async function testTransactionsAPI() {
+            console.log('=== Testing Transactions API ===');
+            
+            console.log('1. Testing grouped endpoint...');
+            try {
+                const grouped = await apiCall('/api/transactions/grouped');
+                console.log('Grouped endpoint OK:', grouped.length, 'transactions');
+            } catch (error) {
+                console.error('Grouped endpoint failed:', error.message);
+            }
+            
+            console.log('2. Testing main endpoint...');
+            try {
+                const main = await apiCall('/api/transactions');
+                console.log('Main endpoint OK:', Array.isArray(main) ? main.length : 'not array', 'transactions');
+            } catch (error) {
+                console.error('Main endpoint failed:', error.message);
+            }
+            
+            console.log('3. Testing dashboard endpoint...');
+            try {
+                const dashboard = await apiCall('/api/reports/dashboard');
+                console.log('Dashboard endpoint OK:', dashboard);
+            } catch (error) {
+                console.error('Dashboard endpoint failed:', error.message);
+            }
+            
+            console.log('=== Tests completed ===');
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('id-ID');
+            const timeStr = now.toLocaleTimeString('id-ID');
+            const el = document.getElementById('currentDateTime');
+            if (el) el.textContent = `${dateStr} ${timeStr}`;
+        }
+
+        // Login Functions
+        function showLogin() {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('mainApp').style.display = 'none';
+        }
+
+        function showMainApp() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('currentUser').textContent = currentUser.username;
+            loadDashboard();
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    authToken = data.token;
+                    currentUser = data.user;
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    showMainApp();
+                } else {
+                    showAlert('loginAlert', data.error || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showAlert('loginAlert', 'Connection error', 'error');
+            }
+        });
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            showLogin();
+        }
+
+        // Page Navigation
+        function showPage(page) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+            
+            // Update menu
+            document.querySelectorAll('.menu a').forEach(a => a.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show selected page
+            document.getElementById(page + 'Page').style.display = 'block';
+            
+            // Load page data
+            switch(page) {
+                case 'dashboard': 
+                    loadDashboard(); 
+                    break;
+                case 'transaction': 
+                    initTransaction(); 
+                    break;
+                case 'transactions': 
+                    loadTransactions();
+                    startAutoRefresh(); // Start auto-refresh for transactions
+                    break;
+                case 'products': 
+                    loadProducts(); 
+                    break;
+                case 'customers': 
+                    loadCustomers(); 
+                    break;
+                case 'reports': 
+                    loadReports(); 
+                    break;
+            }
+        }
+
+        // API Helper
+        async function apiCall(endpoint, options = {}) {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                ...options
+            };
+
+            if (options.body && typeof options.body === 'object') {
+                config.body = JSON.stringify(options.body);
+            }
+
+            console.log('API Call:', endpoint, config.method || 'GET');
+
+            try {
+                const response = await fetch(endpoint, config);
+                
+                if (response.status === 401) {
+                    console.warn('Unauthorized, logging out...');
+                    logout();
+                    return null;
+                }
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errorData;
+                    try {
+                        errorData = JSON.parse(errorText);
+                    } catch (e) {
+                        errorData = { error: errorText };
+                    }
+                    
+                    console.error('API Error:', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        endpoint: endpoint,
+                        error: errorData
+                    });
+                    
+                    throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('API Success:', endpoint, 'returned', Array.isArray(data) ? data.length + ' items' : typeof data);
+                return data;
+                
+            } catch (fetchError) {
+                console.error('Fetch Error:', {
+                    endpoint: endpoint,
+                    error: fetchError.message,
+                    stack: fetchError.stack
+                });
+                
+                // More specific error messages
+                if (fetchError.name === 'TypeError' && fetchError.message.includes('Failed to fetch')) {
+                    throw new Error('Tidak dapat terhubung ke server. Pastikan server berjalan.');
+                } else if (fetchError.message.includes('NetworkError')) {
+                    throw new Error('Error jaringan. Periksa koneksi internet Anda.');
+                } else {
+                    throw fetchError;
+                }
+            }
+        }
+
+        // Debug function to check database structure
+        async function checkDatabaseStructure() {
+            try {
+                const debugData = await apiCall('/api/debug/tables');
+                console.log('Database Structure:', debugData);
+                return debugData;
+            } catch (error) {
+                console.error('Cannot check database structure:', error);
+                return null;
+            }
+        }
+
+        // Dashboard Functions
+        async function loadDashboard() {
+            try {
+                console.log('Loading dashboard...');
+                
+                let data;
+                try {
+                    data = await apiCall('/api/reports/dashboard');
+                    
+                    // Handle fallback data if error occurred
+                    if (data.fallback) {
+                        console.warn('Dashboard returned fallback data');
+                        data = data.fallback;
+                        showAlert('', 'Beberapa data dashboard tidak dapat dimuat. Menggunakan data fallback.', 'warning');
+                    }
+                } catch (dashboardError) {
+                    console.error('Dashboard API failed:', dashboardError);
+                    
+                    // Use minimal fallback
+                    data = {
+                        totalRevenue: 0,
+                        totalTransactions: 0,
+                        totalCustomers: 0,
+                        totalStockKg: 0
+                    };
+                    
+                    showAlert('', 'Error memuat dashboard. Menggunakan data minimal.', 'error');
+                }
+                
+                // Update dashboard cards safely
+                const todaySalesEl = document.getElementById('todaySales');
+                const todayTransactionsEl = document.getElementById('todayTransactions');
+                const totalCustomersEl = document.getElementById('totalCustomers');
+                const totalStockEl = document.getElementById('totalStock');
+                
+                if (todaySalesEl) todaySalesEl.textContent = formatNumber(data.totalRevenue || 0);
+                if (todayTransactionsEl) todayTransactionsEl.textContent = data.totalTransactions || 0;
+                if (totalCustomersEl) totalCustomersEl.textContent = data.totalCustomers || 0;
+                if (totalStockEl) totalStockEl.textContent = formatNumber(data.totalStockKg || 0);
+                
+                // Load products for stock display
+                try {
+                    await loadProducts();
+                    
+                    // Display stock in dashboard
+                    const stockTable = document.getElementById('stockTable');
+                    if (stockTable && products.length > 0) {
+                        stockTable.innerHTML = products.map(p => `
+                            <tr>
+                                <td>${p.code || 'N/A'}</td>
+                                <td>${p.name || 'N/A'}</td>
+                                <td>${p.category || '-'}</td>
+                                <td>${p.stock_kg || 0} kg</td>
+                                <td>Rp ${formatNumber(p.price_per_kg_sell || 0)}</td>
+                                <td>
+                                    <span class="status-badge ${(p.stock_kg || 0) < (p.min_stock_kg || 0) ? 'status-low-stock' : 'status-ok'}">
+                                        ${(p.stock_kg || 0) < (p.min_stock_kg || 0) ? 'LOW STOCK' : 'OK'}
+                                    </span>
+                                </td>
+                            </tr>
+                        `).join('');
+                    } else if (stockTable) {
+                        stockTable.innerHTML = '<tr><td colspan="6" style="text-align: center;">Tidak ada data produk</td></tr>';
+                    }
+                } catch (productsError) {
+                    console.error('Error loading products for dashboard:', productsError);
+                    const stockTable = document.getElementById('stockTable');
+                    if (stockTable) {
+                        stockTable.innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Error loading products</td></tr>';
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Dashboard error:', error);
+                showAlert('', 'Error memuat dashboard: ' + error.message, 'error');
+            }
+        }
+
+        // Transaction Functions
+        function initTransaction() {
+            // Generate transaction number
+            const now = new Date();
+            const transNo = 'TRX' + now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + 
+                           String(now.getDate()).padStart(2,'0') + String(now.getHours()).padStart(2,'0') + 
+                           String(now.getMinutes()).padStart(2,'0') + String(now.getSeconds()).padStart(2,'0');
+            document.getElementById('transactionNo').value = transNo;
+            
+            // Load dropdowns
+            loadProductDropdown();
+            loadCustomerDropdown();
+            
+            // Reset items
+            transactionItems = [];
+            itemCounter = 0;
+            updateItemsTable();
+        }
+
+        async function loadProductDropdown() {
+            if (products.length === 0) await loadProducts();
+        }
+
+        async function loadCustomerDropdown() {
+            if (customers.length === 0) await loadCustomers();
+            const select = document.getElementById('customerId');
+            select.innerHTML = '<option value="">-- Pilih Customer --</option>';
+            customers.forEach(c => {
+                select.innerHTML += `<option value="${c.id}" data-shipping="${c.shipping_cost}">${c.name} (${c.customer_type})</option>`;
+            });
+        }
+
+        function addItem() {
+            itemCounter++;
+            const newItem = {
+                id: itemCounter,
+                productId: '',
+                productName: '',
+                originalPrice: 0,
+                pricePerKg: 0,
+                customPrice: false,
+                weight: 0,
+                subtotal: 0
+            };
+            transactionItems.push(newItem);
+            updateItemsTable();
+        }
+
+        function updateItemsTable() {
+            const tbody = document.getElementById('itemsBody');
+            
+            if (transactionItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Belum ada barang</td></tr>';
+                calculateTotal();
+                return;
+            }
+            
+            tbody.innerHTML = transactionItems.map((item, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>
+                        <select onchange="updateItemProduct(${item.id}, this.value)" value="${item.productId}">
+                            <option value="">-- Pilih Produk --</option>
+                            ${products.filter(p => p.stock_kg > 0).map(p => 
+                                `<option value="${p.id}" ${p.id == item.productId ? 'selected' : ''}>
+                                    ${p.name} (Stok: ${p.stock_kg} kg)
+                                </option>`
+                            ).join('')}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" value="${item.pricePerKg}" 
+                               class="${item.customPrice ? 'price-override' : ''}"
+                               onchange="updateItemPrice(${item.id}, this.value)" 
+                               style="width: 100%;">
+                        ${item.customPrice ? '<div class="price-override-indicator">Harga disesuaikan</div>' : ''}
+                    </td>
+                    <td>
+                        <div class="qty-controls">
+                            <button type="button" class="qty-btn" onclick="adjustWeight(${item.id}, -0.1)">-</button>
+                            <input type="number" step="0.01" value="${item.weight}" 
+                                   class="qty-input" onchange="updateItemWeight(${item.id}, this.value)">
+                            <button type="button" class="qty-btn" onclick="adjustWeight(${item.id}, 0.1)">+</button>
+                        </div>
+                    </td>
+                    <td style="text-align: right;">Rp ${formatNumber(item.subtotal)}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="removeItem(${item.id})">Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            calculateTotal();
+        }
+
+        function updateItemProduct(itemId, productId) {
+            const item = transactionItems.find(i => i.id === itemId);
+            if (!item) return;
+            
+            if (!productId) {
+                item.productId = '';
+                item.productName = '';
+                item.originalPrice = 0;
+                item.pricePerKg = 0;
+                item.customPrice = false;
+                item.subtotal = 0;
+            } else {
+                const product = products.find(p => p.id == productId);
+                if (product) {
+                    item.productId = product.id;
+                    item.productName = product.name;
+                    item.originalPrice = parseFloat(product.price_per_kg_sell);
+                    item.pricePerKg = parseFloat(product.price_per_kg_sell);
+                    item.customPrice = false;
+                    item.subtotal = Math.round(item.weight * item.pricePerKg);
+                }
+            }
+            
+            updateItemsTable();
+        }
+
+        function updateItemPrice(itemId, price) {
+            const item = transactionItems.find(i => i.id === itemId);
+            if (!item) return;
+            
+            const newPrice = parseFloat(price) || 0;
+            item.pricePerKg = newPrice;
+            item.customPrice = newPrice !== item.originalPrice;
+            item.subtotal = Math.round(item.weight * item.pricePerKg);
+            updateItemsTable();
+        }
+
+        function updateItemWeight(itemId, weight) {
+            const item = transactionItems.find(i => i.id === itemId);
+            if (!item) return;
+            
+            item.weight = parseFloat(weight) || 0;
+            
+            // Check stock
+            const product = products.find(p => p.id == item.productId);
+            if (product && item.weight > product.stock_kg) {
+                showAlert('transactionAlert', `Stok tidak cukup! Tersedia: ${product.stock_kg} kg`, 'warning');
+                item.weight = Math.min(item.weight, product.stock_kg);
+            }
+            
+            item.subtotal = Math.round(item.weight * item.pricePerKg);
+            updateItemsTable();
+        }
+
+        function adjustWeight(itemId, delta) {
+            const item = transactionItems.find(i => i.id === itemId);
+            if (!item) return;
+            
+            const newWeight = Math.max(0, item.weight + delta);
+            updateItemWeight(itemId, newWeight);
+        }
+
+        function removeItem(itemId) {
+            transactionItems = transactionItems.filter(i => i.id !== itemId);
+            updateItemsTable();
+        }
+
+        function updateShipping() {
+            const select = document.getElementById('customerId');
+            const selectedOption = select.options[select.selectedIndex];
+            const shipping = selectedOption.getAttribute('data-shipping') || 0;
+            document.getElementById('shipping').textContent = formatNumber(shipping);
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            const subtotal = transactionItems.reduce((sum, item) => sum + item.subtotal, 0);
+            const shipping = parseFloat(document.getElementById('shipping').textContent.replace(/\./g, '')) || 0;
+            const discountPercent = parseFloat(document.getElementById('discountPercent').value) || 0;
+            const taxPercent = parseFloat(document.getElementById('taxPercent').value) || 0;
+            
+            const discountAmount = Math.round(subtotal * discountPercent / 100);
+            const taxableAmount = subtotal - discountAmount;
+            const taxAmount = Math.round(taxableAmount * taxPercent / 100);
+            const total = subtotal - discountAmount + taxAmount + shipping;
+            
+            document.getElementById('subtotal').textContent = formatNumber(subtotal);
+            document.getElementById('grandTotal').textContent = formatNumber(total);
+        }
+
+        // Save Transaction - Enhanced for multi-item
+        document.getElementById('transactionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const customerId = document.getElementById('customerId').value;
+            if (!customerId) {
+                showAlert('transactionAlert', 'Pilih customer terlebih dahulu!', 'error');
+                return;
+            }
+            
+            if (transactionItems.length === 0 || transactionItems.every(i => !i.productId)) {
+                showAlert('transactionAlert', 'Tambahkan minimal 1 barang!', 'error');
+                return;
+            }
+            
+            try {
+                const discountPercent = parseFloat(document.getElementById('discountPercent').value) || 0;
+                const taxPercent = parseFloat(document.getElementById('taxPercent').value) || 0;
+                
+                for (const item of transactionItems) {
+                    if (!item.productId || item.weight <= 0) continue;
+                    
+                    const transactionData = {
+                        customer_id: parseInt(customerId),
+                        product_id: parseInt(item.productId),
+                        actual_weight_kg: item.weight,
+                        custom_price_per_kg: item.customPrice ? item.pricePerKg : null,
+                        payment_method: document.getElementById('paymentMethod').value,
+                        status: 'completed',
+                        notes: document.getElementById('notes').value,
+                        weighed_by: currentUser.username,
+                        discount_percent: discountPercent,
+                        tax_percent: taxPercent
+                    };
+                    
+                    await apiCall('/api/transactions', {
+                        method: 'POST',
+                        body: transactionData
+                    });
+                }
+                
+                showAlert('transactionAlert', 'Transaksi berhasil disimpan!', 'success');
+                setTimeout(() => {
+                    resetTransaction();
+                    showPage('transactions');
+                }, 1500);
+                
+            } catch (error) {
+                showAlert('transactionAlert', 'Error: ' + error.message, 'error');
+            }
+        });
+
+        function resetTransaction() {
+            document.getElementById('transactionForm').reset();
+            transactionItems = [];
+            itemCounter = 0;
+            updateItemsTable();
+            initTransaction();
+        }
+
+        // Load Functions
+        async function loadProducts() {
+            try {
+                const tbody = document.getElementById('productsTable');
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Loading...</td></tr>';
+                
+                products = await apiCall('/api/products') || [];
+                
+                tbody.innerHTML = products.map(p => `
+                    <tr>
+                        <td>${p.code}</td>
+                        <td>${p.name}</td>
+                        <td>${p.category || '-'}</td>
+                        <td>Rp ${formatNumber(p.price_per_kg_buy)}</td>
+                        <td>Rp ${formatNumber(p.price_per_kg_sell)}</td>
+                        <td>${p.stock_kg} kg</td>
+                        <td>${p.min_stock_kg} kg</td>
+                        <td>${p.supplier || '-'}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" onclick="editProduct(${p.id})">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">Hapus</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Load products error:', error);
+                const tbody = document.getElementById('productsTable');
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: red;">Error loading products</td></tr>';
+            }
+        }
+
+        async function loadCustomers() {
+            try {
+                const tbody = document.getElementById('customersTable');
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Loading...</td></tr>';
+                
+                customers = await apiCall('/api/customers') || [];
+                
+                tbody.innerHTML = customers.map(c => `
+                    <tr>
+                        <td>${c.id}</td>
+                        <td>${c.name}</td>
+                        <td>${c.phone}</td>
+                        <td>${c.address}</td>
+                        <td>
+                            <span class="status-badge status-ok">${c.customer_type || 'retail'}</span>
+                        </td>
+                        <td>Rp ${formatNumber(c.shipping_cost)}</td>
+                        <td>${c.total_transactions || 0}</td>
+                        <td>Rp ${formatNumber(c.total_spent || 0)}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" onclick="editCustomer(${c.id})">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteCustomer(${c.id})">Hapus</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Load customers error:', error);
+                const tbody = document.getElementById('customersTable');
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: red;">Error loading customers</td></tr>';
+            }
+        }
+
+        // ========== KODE DIUBAH (loadTransactions) ==========
+async function loadTransactions() {
+    try {
+        const tbody = document.getElementById('transactionsTable');
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Loading...</td></tr>';
+        
+        console.log('Loading transactions...');
+        
+        // Call main endpoint yang sudah di-fix dengan JS grouping
+        const response = await apiCall('/api/transactions');
+        
+        transactions = response || [];
+        console.log('Loaded transactions:', transactions.length);
+        
+        if (transactions.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Belum ada transaksi</td></tr>';
+            return;
+        }
+        
+        displayTransactions(transactions);
+        
+    } catch (error) {
+        console.error('Load transactions error:', error);
+        const tbody = document.getElementById('transactionsTable');
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 20px;">
+                    <div style="color: #721c24; background: #f8d7da; padding: 15px; border-radius: 5px;">
+                        <strong>⚠️ Error Loading Transactions</strong><br>
+                        <small>${error.message}</small><br><br>
+                        <button class="btn btn-primary" onclick="loadTransactions()">🔄 Try Again</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+        // ========== AKHIR PERUBAHAN ==========
+async function quickUpdateStatus(transactionNo, newStatus) {
+    if (!confirm(`Ubah status transaksi ${transactionNo} menjadi ${newStatus}?`)) {
+        return;
+    }
+    
+    try {
+        await apiCall(`/api/transactions/status/${transactionNo}`, {
+            method: 'PUT',
+            body: { status: newStatus }
+        });
+        
+        showAlert('', `Status berhasil diubah menjadi ${newStatus}!`, 'success');
+        loadTransactions();
+        
+    } catch (error) {
+        // Fallback: update individual transaction
+        try {
+            const trans = transactions.find(t => t.transaction_no === transactionNo);
+            if (trans && trans.id) {
+                await apiCall(`/api/transactions/${trans.id}`, {
+                    method: 'PUT',
+                    body: { status: newStatus }
+                });
+                showAlert('', 'Status berhasil diubah!', 'success');
+                loadTransactions();
+            }
+        } catch (fallbackError) {
+            alert('Error: ' + fallbackError.message);
+        }
+    }
+}
+
+async function updateTransactionStatus(transactionNo, newStatus) {
+    if (!confirm(`Change status of transaction ${transactionNo} to ${newStatus}?`)) {
+        return;
+    }
+    
+    try {
+        await apiCall(`/api/transactions/status/${transactionNo}`, {
+            method: 'PUT',
+            body: { status: newStatus }
+        });
+        
+        showAlert('', `✅ Status changed to ${newStatus}`, 'success');
+        
+        // Reload transactions
+        await loadTransactions();
+        
+        // Update dashboard if visible
+        const dashboardPage = document.getElementById('dashboardPage');
+        if (dashboardPage && dashboardPage.style.display !== 'none') {
+            await loadDashboard();
+        }
+        
+    } catch (error) {
+        console.error('Error updating status:', error);
+        alert('❌ Error: ' + error.message);
+    }
+}
+
+        // ========== KODE DIUBAH (displayTransactions) ==========
+function displayTransactions(data) {
+    const tbody = document.getElementById('transactionsTable');
+    
+    if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Tidak ada data transaksi</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = data.map(t => {
+        // Format transaction number
+        const transNo = t.transaction_no || `TRX${t.id}`;
+        
+        // Format product display with item count
+        let productDisplay = 'N/A';
+        if (t.product_names) {
+            const itemCount = t.item_count || 1;
+            // Truncate if too long
+            let productNames = t.product_names;
+            if (productNames.length > 50) {
+                productNames = productNames.substring(0, 50) + '...';
+            }
+            productDisplay = `
+                <div>
+                    ${productNames}
+                    <br>
+                    <small style="color: #6c757d;">
+                        ${itemCount} item${itemCount > 1 ? 's' : ''}
+                    </small>
+                </div>
+            `;
+        }
+        
+        // Format weight with 2 decimals
+        const weight = parseFloat(t.total_weight_kg || 0).toFixed(2);
+        
+        // Format total
+        const total = t.grand_total || 0;
+        
+        // Format date
+        const dateStr = t.transaction_date ? formatDate(t.transaction_date) : 'N/A';
+        
+        // Customer display
+        const customerDisplay = `
+            <div>
+                <strong>${t.customer_name || 'N/A'}</strong>
+                ${t.customer_type ? `<br><small style="color: #6c757d;">${t.customer_type}</small>` : ''}
+            </div>
+        `;
+        
+        // Status badge
+        const status = t.status || 'pending';
+        const statusClass = {
+            'completed': 'status-completed',
+            'pending': 'status-pending',
+            'cancelled': 'status-cancelled',
+            'refunded': 'status-cancelled'
+        }[status] || 'status-pending';
+        
+        const statusDisplay = `
+            <span class="status-badge ${statusClass}">
+                ${status.toUpperCase()}
+            </span>
+        `;
+        
+        // Action buttons
+        let actionButtons = `
+            <button class="btn btn-info btn-sm" onclick="viewTransactionDetails(${t.id})" title="View Details">
+                👁️
+            </button>
+        `;
+        
+        if (status === 'pending') {
+            actionButtons += `
+                <button class="btn btn-success btn-sm" onclick="updateTransactionStatus('${transNo}', 'completed')" title="Complete">
+                    ✓
+                </button>
+            `;
+        }
+        
+        if (status === 'completed') {
+            actionButtons += `
+                <button class="btn btn-warning btn-sm" onclick="updateTransactionStatus('${transNo}', 'cancelled')" title="Cancel">
+                    ✗
+                </button>
+            `;
+        }
+        
+        return `
+            <tr>
+                <td><strong>${transNo}</strong></td>
+                <td>${dateStr}</td>
+                <td>${customerDisplay}</td>
+                <td>${productDisplay}</td>
+                <td style="text-align: right;"><strong>${weight}</strong> kg</td>
+                <td style="text-align: right;">
+                    <strong style="color: #28a745;">
+                        Rp ${formatNumber(total)}
+                    </strong>
+                </td>
+                <td style="text-align: center;">${statusDisplay}</td>
+                <td style="white-space: nowrap;">${actionButtons}</td>
+            </tr>
+        `;
+    }).join('');
+}
+        // ========== AKHIR PERUBAHAN ==========
+
+
+        // Helper functions
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('id-ID');
+        }
+
+        function capitalizeFirst(str) {
+            if (!str) return 'N/A';
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        // Enhanced Product Functions
+        function showProductForm(productId = null) {
+            editingProductId = productId;
+            document.getElementById('productModal').style.display = 'block';
+            
+            if (productId) {
+                loadProductForEdit(productId);
+            } else {
+                document.getElementById('productForm').reset();
+                document.getElementById('editProductId').value = '';
+                document.getElementById('productionDate').value = new Date().toISOString().split('T')[0];
+            }
+        }
+
+        async function loadProductForEdit(productId) {
+            try {
+                const product = await apiCall(`/api/products/${productId}`);
+                document.getElementById('editProductId').value = product.id;
+                document.getElementById('productCode').value = product.code;
+                document.getElementById('productName').value = product.name;
+                document.getElementById('productDesc').value = product.description;
+                document.getElementById('productionDate').value = product.production_date;
+                document.getElementById('buyPrice').value = product.price_per_kg_buy;
+                document.getElementById('sellPrice').value = product.price_per_kg_sell;
+                document.getElementById('stock').value = product.stock_kg;
+                document.getElementById('minStock').value = product.min_stock_kg;
+                document.getElementById('productCategory').value = product.category || 'Ikan Segar';
+                document.getElementById('productSupplier').value = product.supplier || '';
+            } catch (error) {
+                showAlert('productsAlert', 'Error loading product: ' + error.message, 'error');
+            }
+        }
+
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const productData = {
+                code: document.getElementById('productCode').value,
+                name: document.getElementById('productName').value,
+                description: document.getElementById('productDesc').value,
+                production_date: document.getElementById('productionDate').value,
+                price_per_kg_buy: parseFloat(document.getElementById('buyPrice').value),
+                price_per_kg_sell: parseFloat(document.getElementById('sellPrice').value),
+                stock_kg: parseFloat(document.getElementById('stock').value),
+                min_stock_kg: parseFloat(document.getElementById('minStock').value) || 5,
+                category: document.getElementById('productCategory').value,
+                supplier: document.getElementById('productSupplier').value
+            };
+            
+            try {
+                const editId = document.getElementById('editProductId').value;
+                if (editId) {
+                    await apiCall(`/api/products/${editId}`, {
+                        method: 'PUT',
+                        body: productData
+                    });
+                    showAlert('productsAlert', 'Produk berhasil diupdate!', 'success');
+                } else {
+                    await apiCall('/api/products', {
+                        method: 'POST',
+                        body: productData
+                    });
+                    showAlert('productsAlert', 'Produk berhasil ditambahkan!', 'success');
+                }
+                
+                closeModal('productModal');
+                loadProducts();
+            } catch (error) {
+                showAlert('productsAlert', 'Error: ' + error.message, 'error');
+            }
+        });
+
+        async function editProduct(id) {
+            showProductForm(id);
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('Yakin hapus produk ini? Data tidak dapat dikembalikan.')) return;
+            
+            try {
+                await apiCall(`/api/products/${id}`, { method: 'DELETE' });
+                showAlert('productsAlert', 'Produk berhasil dihapus!', 'success');
+                loadProducts();
+            } catch (error) {
+                showAlert('productsAlert', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        // Enhanced Customer Functions
+        function showCustomerForm(customerId = null) {
+            editingCustomerId = customerId;
+            document.getElementById('customerModal').style.display = 'block';
+            
+            if (customerId) {
+                loadCustomerForEdit(customerId);
+            } else {
+                document.getElementById('customerForm').reset();
+                document.getElementById('editCustomerId').value = '';
+            }
+        }
+
+        async function loadCustomerForEdit(customerId) {
+            try {
+                const customer = await apiCall(`/api/customers/${customerId}`);
+                document.getElementById('editCustomerId').value = customer.id;
+                document.getElementById('customerName').value = customer.name;
+                document.getElementById('customerPhone').value = customer.phone;
+                document.getElementById('customerEmail').value = customer.email || '';
+                document.getElementById('customerAddress').value = customer.address;
+                document.getElementById('customerShipping').value = customer.shipping_cost;
+                document.getElementById('customerType').value = customer.customer_type;
+                document.getElementById('customerCreditLimit').value = customer.credit_limit || 0;
+            } catch (error) {
+                showAlert('customersAlert', 'Error loading customer: ' + error.message, 'error');
+            }
+        }
+
+        document.getElementById('customerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const customerData = {
+                name: document.getElementById('customerName').value,
+                phone: document.getElementById('customerPhone').value,
+                email: document.getElementById('customerEmail').value,
+                address: document.getElementById('customerAddress').value,
+                shipping_cost: parseFloat(document.getElementById('customerShipping').value) || 0,
+                customer_type: document.getElementById('customerType').value,
+                credit_limit: parseFloat(document.getElementById('customerCreditLimit').value) || 0
+            };
+            
+            try {
+                const editId = document.getElementById('editCustomerId').value;
+                if (editId) {
+                    await apiCall(`/api/customers/${editId}`, {
+                        method: 'PUT',
+                        body: customerData
+                    });
+                    showAlert('customersAlert', 'Customer berhasil diupdate!', 'success');
+                } else {
+                    await apiCall('/api/customers', {
+                        method: 'POST',
+                        body: customerData
+                    });
+                    showAlert('customersAlert', 'Customer berhasil ditambahkan!', 'success');
+                }
+                
+                closeModal('customerModal');
+                loadCustomers();
+            } catch (error) {
+                showAlert('customersAlert', 'Error: ' + error.message, 'error');
+            }
+        });
+
+        async function editCustomer(id) {
+            showCustomerForm(id);
+        }
+
+        async function deleteCustomer(id) {
+            if (!confirm('Yakin hapus customer ini? Data tidak dapat dikembalikan.')) return;
+            
+            try {
+                await apiCall(`/api/customers/${id}`, { method: 'DELETE' });
+                showAlert('customersAlert', 'Customer berhasil dihapus!', 'success');
+                loadCustomers();
+            } catch (error) {
+                showAlert('customersAlert', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        // ========== KODE DIUBAH (viewTransaction) ==========
+        async function viewTransactionDetails(id) {
+    try {
+        console.log('Loading transaction details for ID:', id);
+        
+        // Load transaction details
+        const details = await apiCall(`/api/transactions/${id}/details`);
+        
+        if (!details) {
+            throw new Error('No details found');
+        }
+        
+        // Format items display
+        let itemsHtml = '';
+        if (details.items && details.items.length > 0) {
+            itemsHtml = details.items.map((item, index) => `
+                <div style="background: #f8f9fa; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div>
+                            <strong>#${index + 1}</strong> ${item.product_name || 'N/A'}
+                            <br>
+                            <small style="color: #6c757d;">Code: ${item.product_code || '-'}</small>
+                        </div>
+                        <div style="text-align: right;">
+                            <strong>${item.actual_weight_kg} kg</strong>
+                            <br>
+                            <small>@ Rp ${formatNumber(item.price_per_kg)}/kg</small>
+                        </div>
+                    </div>
+                    <div style="margin-top: 5px; text-align: right; color: #28a745;">
+                        <strong>Subtotal: Rp ${formatNumber(item.subtotal)}</strong>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            itemsHtml = '<p>No items found</p>';
+        }
+        
+        // Build modal content
+        const modalContent = `
+            <div style="font-family: Arial, sans-serif;">
+                <h4 style="margin-bottom: 20px; color: #2c3e50;">
+                    Transaction #${details.transaction_no || 'N/A'}
+                </h4>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <strong>Date:</strong> ${formatDate(details.transaction_date)}<br>
+                        <strong>Time:</strong> ${details.transaction_time || 'N/A'}<br>
+                        <strong>Status:</strong> 
+                        <span class="status-badge status-${details.status || 'pending'}">
+                            ${(details.status || 'pending').toUpperCase()}
+                        </span>
+                    </div>
+                    <div>
+                        <strong>Customer:</strong> ${details.customer_name || 'N/A'}<br>
+                        <strong>Phone:</strong> ${details.customer_phone || '-'}<br>
+                        <strong>Type:</strong> ${details.customer_type || '-'}
+                    </div>
+                </div>
+                
+                <h5 style="margin-bottom: 10px; color: #34495e;">Items (${details.items ? details.items.length : 0})</h5>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    ${itemsHtml}
+                </div>
+                
+                <div style="border-top: 2px solid #dee2e6; margin-top: 20px; padding-top: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>Total Weight:</span>
+                        <strong>${parseFloat(details.total_weight || 0).toFixed(2)} kg</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span>Shipping:</span>
+                        <span>Rp ${formatNumber(details.shipping_cost || 0)}</span>
+                    </div>
+                    ${details.total_discount > 0 ? `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Discount:</span>
+                            <span style="color: #dc3545;">- Rp ${formatNumber(details.total_discount)}</span>
+                        </div>
+                    ` : ''}
+                    ${details.total_tax > 0 ? `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Tax:</span>
+                            <span>Rp ${formatNumber(details.total_tax)}</span>
+                        </div>
+                    ` : ''}
+                    <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; border-top: 2px solid #2c3e50; padding-top: 10px;">
+                        <span>GRAND TOTAL:</span>
+                        <span style="color: #28a745;">Rp ${formatNumber(details.grand_total || 0)}</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+                    <small style="color: #6c757d;">
+                        <strong>Payment:</strong> ${details.payment_method || 'N/A'} | 
+                        <strong>Cashier:</strong> ${details.cashier_name || '-'} | 
+                        <strong>Weighed by:</strong> ${details.weighed_by || '-'}
+                    </small>
+                    ${details.notes ? `<br><small><strong>Notes:</strong> ${details.notes}</small>` : ''}
+                </div>
+            </div>
+        `;
+        
+        // Show in modal
+        document.getElementById('transactionDetailContent').innerHTML = modalContent;
+        document.getElementById('transactionDetailContent').setAttribute('data-transaction', JSON.stringify(details));
+        document.getElementById('transactionDetailModal').style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error loading transaction details:', error);
+        alert('Error loading transaction details: ' + error.message);
+    }
+}
+        // ========== AKHIR PERUBAHAN ==========
+
+
+        async function deleteTransaction(id) {
+            if (!confirm('Yakin hapus transaksi ini?\n\nStok akan dikembalikan otomatis dan data tidak dapat dikembalikan.')) return;
+            
+            try {
+                // Catatan: Fungsi ini hanya akan menghapus satu item, bukan seluruh grup transaksi.
+                // Untuk keamanan, tombol ini telah disembunyikan dari tampilan daftar transaksi yang dikelompokkan.
+                await apiCall(`/api/transactions/${id}`, { method: 'DELETE' });
+                showAlert('', 'Transaksi berhasil dihapus dan stok dikembalikan!', 'success');
+                
+                // Auto refresh after delete
+                setTimeout(() => {
+                    loadTransactions();
+                    loadDashboard(); // Update dashboard stats
+                }, 1000);
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Auto-refresh functions
+        function refreshTransactions() {
+    console.log('Refreshing transactions...');
+    loadTransactions().then(() => {
+        showAlert('', '✅ Data refreshed!', 'success');
+    }).catch(error => {
+        showAlert('', '❌ Refresh failed: ' + error.message, 'error');
+    });
+}
+
+        // Set auto-refresh every 30 seconds when on transactions page
+        let autoRefreshInterval;
+        function startAutoRefresh() {
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            autoRefreshInterval = setInterval(() => {
+                const currentPage = document.querySelector('.page[style*="block"]');
+                if (currentPage && currentPage.id === 'transactionsPage') {
+                    console.log('Auto-refreshing transactions...');
+                    loadTransactions();
+                }
+            }, 30000); // Refresh every 30 seconds
+        }
+
+        // Utility Functions
+        function showAlert(containerId, message, type = 'success') {
+            // If no container specified, create a floating alert
+            if (!containerId) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type}`;
+                alertDiv.style.position = 'fixed';
+                alertDiv.style.top = '20px';
+                alertDiv.style.right = '20px';
+                alertDiv.style.zIndex = '9999';
+                alertDiv.style.minWidth = '300px';
+                alertDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+                alertDiv.innerHTML = message;
+                
+                document.body.appendChild(alertDiv);
+                
+                // Auto remove after 3 seconds
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.parentNode.removeChild(alertDiv);
+                    }
+                }, 3000);
+                return;
+            }
+            
+            // Use specified container
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+                setTimeout(() => container.innerHTML = '', 5000);
+            }
+        }
+
+        function formatNumber(num) {
+            if (num === null || num === undefined || isNaN(num)) return '0';
+            return new Intl.NumberFormat('id-ID').format(num);
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function refreshTransactions() {
+            loadTransactions();
+        }
+
+        function printTransaction() {
+            window.print();
+        }
+
+        function printTransactionDetail() {
+            const transaction = JSON.parse(document.getElementById('transactionDetailContent').getAttribute('data-transaction') || '{}');
+            
+            if (!transaction.items || transaction.items.length === 0) {
+                alert("Tidak ada detail item untuk dicetak.");
+                return;
+            }
+
+            const itemsPrintHtml = transaction.items.map(item => `
+                <tr>
+                    <td colspan="2">${item.product_name}</td>
+                </tr>
+                <tr>
+                    <td>${item.actual_weight_kg} kg x ${formatNumber(item.price_per_kg)}</td>
+                    <td style="text-align: right;">${formatNumber(item.subtotal)}</td>
+                </tr>
+            `).join('');
+
+            let printContent = `
+                <div style="font-family: 'Courier New', monospace; max-width: 300px; font-size: 12px; margin: 0 auto;">
+                    <div style="text-align: center; margin-bottom: 10px;">
+                        <h3 style="margin: 0;">PT. RUMAH LAUT</h3>
+                        <p style="margin: 0;">Jl. RUMAH NIKO</p>
+                    </div>
+                    
+                    <p>No: ${transaction.transaction_no || 'N/A'}<br>
+                       Tgl: ${formatDate(transaction.transaction_date)} ${transaction.transaction_time || ''}<br>
+                       Kasir: ${transaction.cashier_name || 'Admin'}<br>
+                       Cust: ${transaction.customer_name || 'N/A'}</p>
+                    
+                    <hr style="border-top: 1px dashed #000;">
+                    
+                    <table style="width: 100%;">
+                        ${itemsPrintHtml}
+                    </table>
+                    
+                    <hr style="border-top: 1px dashed #000;">
+                    
+                    <table style="width: 100%;">
+                        <tr><td>Subtotal</td><td style="text-align: right;">${formatNumber(transaction.grand_total + (transaction.total_discount || 0) - (transaction.total_tax || 0) - (transaction.shipping_cost || 0))}</td></tr>
+                        <tr><td>Diskon</td><td style="text-align: right;">-${formatNumber(transaction.total_discount || 0)}</td></tr>
+                        <tr><td>Pajak</td><td style="text-align: right;">${formatNumber(transaction.total_tax || 0)}</td></tr>
+                        <tr><td>Ongkir</td><td style="text-align: right;">${formatNumber(transaction.shipping_cost || 0)}</td></tr>
+                    </table>
+
+                    <hr style="border-top: 1px dashed #000;">
+
+                    <table style="width: 100%; font-weight: bold;">
+                         <tr>
+                            <td>TOTAL</td>
+                            <td style="text-align: right;">Rp ${formatNumber(transaction.grand_total || 0)}</td>
+                        </tr>
+                    </table>
+                    
+                    <p>Bayar: ${capitalizeFirst(transaction.payment_method || '')}</p>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <p>Terima kasih!</p>
+                    </div>
+                </div>
+            `;
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Cetak Transaksi</title>
+                    <style>
+                        body { margin: 0; padding: 10px; }
+                        table { width:100%; border-collapse: collapse; }
+                        td { padding: 1px; }
+                        hr { border: none; border-top: 1px dashed #000; margin: 5px 0; }
+                    </style>
+                </head>
+                <body onload="window.print(); window.close();">
+                    ${printContent}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        function searchTransactions(query) {
+    if (!query) {
+        displayTransactions(transactions);
+        return;
+    }
+    
+    const searchLower = query.toLowerCase();
+    const filtered = transactions.filter(t => {
+        return (
+            (t.transaction_no && t.transaction_no.toLowerCase().includes(searchLower)) ||
+            (t.customer_name && t.customer_name.toLowerCase().includes(searchLower)) ||
+            (t.product_names && t.product_names.toLowerCase().includes(searchLower)) ||
+            (t.status && t.status.toLowerCase().includes(searchLower))
+        );
+    });
+    
+    displayTransactions(filtered);
+}
+
+        function filterByDate() {
+    const dateInput = document.getElementById('filterDate').value;
+    if (!dateInput) {
+        displayTransactions(transactions);
+        return;
+    }
+    
+    const filtered = transactions.filter(t => {
+        const transDate = t.transaction_date ? 
+            new Date(t.transaction_date).toISOString().split('T')[0] : '';
+        return transDate === dateInput;
+    });
+    
+    displayTransactions(filtered);
+}
+
+        function filterByStatus() {
+    const status = document.getElementById('filterStatus').value;
+    if (!status) {
+        displayTransactions(transactions);
+        return;
+    }
+    
+    const filtered = transactions.filter(t => t.status === status);
+    displayTransactions(filtered);
+}
+
+        async function generateReport(type) {
+            const content = document.getElementById('reportContent');
+            content.innerHTML = `<h3>Generating ${type} report...</h3>`;
+            
+            try {
+                let reportData = [];
+                let reportTitle = '';
+                
+                switch(type) {
+                    case 'daily':
+                        const today = new Date().toISOString().split('T')[0];
+                        try {
+                            reportData = await apiCall(`/api/transactions/grouped`);
+                            if (reportData) {
+                                reportData = reportData.filter(t => 
+                                    t.transaction_date && t.transaction_date.startsWith(today)
+                                );
+                            } else {
+                                reportData = [];
+                            }
+                        } catch (error) {
+                            console.error('Daily report error:', error);
+                            reportData = [];
+                        }
+                        reportTitle = `Laporan Harian - ${formatDate(today)}`;
+                        break;
+                        
+                    case 'monthly':
+                        const thisMonth = new Date().toISOString().substring(0, 7); // YYYY-MM
+                        try {
+                            const monthlyResponse = await apiCall('/api/transactions/grouped');
+                            if (monthlyResponse) {
+                                reportData = monthlyResponse.filter(t => 
+                                    t.transaction_date && t.transaction_date.startsWith(thisMonth)
+                                );
+                            } else {
+                                reportData = [];
+                            }
+                        } catch (error) {
+                            console.error('Monthly report error:', error);
+                            reportData = [];
+                        }
+                        reportTitle = `Laporan Bulanan - ${thisMonth}`;
+                        break;
+                        
+                    case 'product':
+                    case 'customer':
+                        try {
+                            reportData = await apiCall('/api/transactions/grouped');
+                        } catch (error) {
+                            console.error('Product/Customer report error:', error);
+                            reportData = [];
+                        }
+                        reportTitle = 'Laporan Transaksi Umum';
+                        break;
+                        
+                    case 'stock':
+                        try {
+                            reportData = await apiCall('/api/products');
+                            if (!reportData) reportData = [];
+                        } catch (error) {
+                            console.error('Stock report error:', error);
+                            reportData = [];
+                        }
+                        reportTitle = 'Laporan Stok Produk';
+                        break;
+                }
+                
+                displayReport(type, reportData, reportTitle);
+                
+            } catch (error) {
+                console.error('Generate report error:', error);
+                content.innerHTML = `
+                    <div style="color: red; text-align: center; padding: 40px;">
+                        <h3>Error generating report</h3>
+                        <p>${error.message}</p>
+                        <button class="btn btn-primary" onclick="generateReport('${type}')">🔄 Coba Lagi</button>
+                    </div>
+                `;
+            }
+        }
+
+        function displayReport(type, data, title) {
+            const content = document.getElementById('reportContent');
+            
+            if (!data || data.length === 0) {
+                content.innerHTML = `
+                    <h3>${title}</h3>
+                    <p>Tidak ada data untuk ditampilkan.</p>
+                `;
+                return;
+            }
+            
+            let tableHTML = '';
+            let csvData = [];
+            
+            switch(type) {
+                case 'daily':
+                case 'monthly':
+                case 'product':
+                case 'customer':
+                    const totalRevenue = data.reduce((sum, t) => sum + (parseFloat(t.grand_total) || 0), 0);
+                    const totalWeight = data.reduce((sum, t) => sum + (parseFloat(t.total_weight_kg) || 0), 0);
+                    
+                    tableHTML = `
+                        <div style="margin-bottom: 20px;">
+                            <div class="summary-box">
+                                <div class="summary-row">
+                                    <span>Total Transaksi:</span>
+                                    <span>${data.length}</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Total Berat:</span>
+                                    <span>${totalWeight.toFixed(2)} kg</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>Total Revenue:</span>
+                                    <span>Rp ${formatNumber(totalRevenue)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>No. Transaksi</th>
+                                    <th>Tanggal</th>
+                                    <th>Customer</th>
+                                    <th>Produk</th>
+                                    <th>Berat (kg)</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(t => `
+                                    <tr>
+                                        <td>${t.transaction_no || 'TRX' + t.id}</td>
+                                        <td>${formatDate(t.transaction_date)}</td>
+                                        <td>${t.customer_name || 'N/A'}</td>
+                                        <td>${t.product_names || 'N/A'}</td>
+                                        <td>${t.total_weight_kg.toFixed(2)}</td>
+                                        <td>Rp ${formatNumber(t.grand_total)}</td>
+                                        <td>${capitalizeFirst(t.status)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                    
+                    // Prepare CSV data
+                    csvData = [
+                        ['No Transaksi', 'Tanggal', 'Customer', 'Produk', 'Jumlah Item', 'Berat (kg)', 'Total', 'Metode Bayar', 'Status'],
+                        ...data.map(t => [
+                            t.transaction_no || 'TRX' + t.id,
+                            t.transaction_date,
+                            t.customer_name || 'N/A',
+                            t.product_names || 'N/A',
+                            t.item_count,
+                            t.total_weight_kg,
+                            t.grand_total,
+                            t.payment_method,
+                            t.status
+                        ])
+                    ];
+                    break;
+                    
+                case 'stock':
+                    tableHTML = `
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Kode</th>
+                                    <th>Nama Produk</th>
+                                    <th>Kategori</th>
+                                    <th>Stok (kg)</th>
+                                    <th>Min. Stok</th>
+                                    <th>Harga Jual/kg</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.map(p => `
+                                    <tr>
+                                        <td>${p.code}</td>
+                                        <td>${p.name}</td>
+                                        <td>${p.category || '-'}</td>
+                                        <td>${p.stock_kg}</td>
+                                        <td>${p.min_stock_kg}</td>
+                                        <td>Rp ${formatNumber(p.price_per_kg_sell)}</td>
+                                        <td>
+                                            <span class="status-badge ${p.stock_kg < p.min_stock_kg ? 'status-low-stock' : 'status-ok'}">
+                                                ${p.stock_kg < p.min_stock_kg ? 'LOW STOCK' : 'OK'}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                    
+                    // Prepare CSV data for stock
+                    csvData = [
+                        ['Kode', 'Nama Produk', 'Kategori', 'Stok (kg)', 'Min Stok', 'Harga Jual/kg', 'Supplier', 'Status'],
+                        ...data.map(p => [
+                            p.code,
+                            p.name,
+                            p.category || '-',
+                            p.stock_kg,
+                            p.min_stock_kg,
+                            p.price_per_kg_sell,
+                            p.supplier || '-',
+                            p.stock_kg < p.min_stock_kg ? 'LOW STOCK' : 'OK'
+                        ])
+                    ];
+                    break;
+            }
+            
+            content.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3>${title}</h3>
+                    <button class="btn btn-success" onclick="exportToCSV('${type}', '${title}')">
+                        📥 Export CSV
+                    </button>
+                </div>
+                ${tableHTML}
+            `;
+            
+            // Store CSV data for export
+            window.currentReportCSV = csvData;
+            window.currentReportTitle = title;
+        }
+
+        function exportToCSV(type, title) {
+            if (!window.currentReportCSV) {
+                alert('Tidak ada data untuk diekspor');
+                return;
+            }
+            
+            const csvContent = window.currentReportCSV
+                .map(row => row.map(cell => `"${(cell ?? '').toString().replace(/"/g, '""')}"`).join(','))
+                .join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            if (link.download !== undefined) {
+                const fileName = `${title.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
+                const url = URL.createObjectURL(blob);
+                
+                link.setAttribute('href', url);
+                link.setAttribute('download', fileName);
+                link.style.visibility = 'hidden';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showAlert('', 'File CSV berhasil diunduh!', 'success');
+            } else {
+                alert('Browser Anda tidak mendukung download otomatis');
+            }
+        }
+
+        function loadReports() {
+            const content = document.getElementById('reportContent');
+            content.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <h3>📊 Sistem Laporan</h3>
+                    <p>Pilih jenis laporan yang ingin dilihat dari tombol di atas.</p>
+                    <p><em>Semua laporan dapat diekspor ke format CSV untuk analisis lebih lanjut.</em></p>
+                </div>
+            `;
+        }
+
+        // Click outside modal to close
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        async function fixMySQLMode() {
+    if (confirm('Ini akan mencoba fix MySQL mode. Lanjutkan?')) {
+        try {
+            // Call a special endpoint to fix SQL mode
+            await apiCall('/api/fix-mysql-mode');
+            alert('MySQL mode fixed! Reloading...');
+            location.reload();
+        } catch (error) {
+            alert('Cannot auto-fix. Please run this in MySQL:\n\nSET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,"ONLY_FULL_GROUP_BY",""));');
+        }
+    }
+}
+    </script>
+</body>
+</html>
