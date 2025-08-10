@@ -1237,14 +1237,9 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
       payment_method, status, notes, weighed_by, discount_percent, tax_percent
     } = req.body;
 
-    // Generate transaction number
-    const now = new Date();
-    const transactionNo = 'TRX' + now.getFullYear() + 
-      String(now.getMonth()+1).padStart(2,'0') + 
-      String(now.getDate()).padStart(2,'0') + 
-      String(now.getHours()).padStart(2,'0') + 
-      String(now.getMinutes()).padStart(2,'0') + 
-      String(now.getSeconds()).padStart(2,'0');
+    // ===== GENERATE NOMOR TRANSAKSI BARU =====
+    const transactionNo = await generateTransactionNo();
+    console.log(`🎯 Using transaction number: ${transactionNo}`);
 
     // Validation
     if (!customer_id || !product_id || !actual_weight_kg || !payment_method) {
@@ -1311,7 +1306,7 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
     const transactionDate = currentDate.toISOString().split('T')[0];
     const transactionTime = currentDate.toTimeString().split(' ')[0];
 
-    // Insert transaction
+    // Insert transaction dengan nomor transaksi baru
     const [result] = await connection.execute(`
       INSERT INTO transactions 
       (transaction_no, customer_id, product_id, actual_weight_kg, price_per_kg, original_price_per_kg,
@@ -1641,99 +1636,150 @@ app.get('/api/debug/tables', authenticateToken, async (req, res) => {
 });
 
 // Fix the existing dashboard endpoint - REPLACE the existing one
+// REPLACE the existing /api/reports/dashboard endpoint in server.js dengan ini:
+
 app.get('/api/reports/dashboard', authenticateToken, async (req, res) => {
+  let connection;
+  
   try {
-    // Initialize response object with defaults
+    connection = await pool.getConnection();
+    console.log('📊 Loading dashboard data...');
+    
+    // Initialize response with safe defaults
     const dashboardData = {
       totalProducts: 0,
-      totalCustomers: 0,
+      totalCustomers: 0, 
       totalTransactions: 0,
       totalRevenue: 0,
       totalStockKg: 0,
       lowStock: [],
       recentTransactions: [],
-      fallback: false
+      debug: {
+        queries: [],
+        errors: []
+      }
     };
 
+    // 1. Get product count (safe query)
     try {
-      // Get product count
-      const [productCount] = await pool.execute(
+      const [productResult] = await connection.execute(
         'SELECT COUNT(*) as count FROM products WHERE is_active = TRUE'
       );
-      dashboardData.totalProducts = productCount[0].count;
+      dashboardData.totalProducts = productResult[0]?.count || 0;
+      dashboardData.debug.queries.push('✅ Products count');
     } catch (err) {
-      console.error('Error getting product count:', err);
+      console.error('❌ Product count error:', err.message);
+      dashboardData.debug.errors.push('Product count: ' + err.message);
     }
 
+    // 2. Get customer count (safe query)
     try {
-      // Get customer count
-      const [customerCount] = await pool.execute(
+      const [customerResult] = await connection.execute(
         'SELECT COUNT(*) as count FROM customers WHERE is_active = TRUE'
       );
-      dashboardData.totalCustomers = customerCount[0].count;
+      dashboardData.totalCustomers = customerResult[0]?.count || 0;
+      dashboardData.debug.queries.push('✅ Customers count');
     } catch (err) {
-      console.error('Error getting customer count:', err);
+      console.error('❌ Customer count error:', err.message);
+      dashboardData.debug.errors.push('Customer count: ' + err.message);
     }
 
+    // 3. Get total stock (safe query)  
     try {
-      // Get today's transaction count
-      const [transactionCount] = await pool.execute(
-        'SELECT COUNT(*) as count FROM transactions WHERE DATE(transaction_date) = CURDATE()'
-      );
-      dashboardData.totalTransactions = transactionCount[0].count;
-    } catch (err) {
-      console.error('Error getting transaction count:', err);
-    }
-    
-    try {
-      // Get today's revenue
-      const [totalRevenue] = await pool.execute(
-        'SELECT COALESCE(SUM(total), 0) as total FROM transactions WHERE status = "completed" AND DATE(transaction_date) = CURDATE()'
-      );
-      dashboardData.totalRevenue = parseFloat(totalRevenue[0].total) || 0;
-    } catch (err) {
-      console.error('Error getting revenue:', err);
-    }
-    
-    try {
-      // Get low stock products
-      const [lowStock] = await pool.execute(
-        'SELECT * FROM products WHERE stock_kg < min_stock_kg AND is_active = TRUE ORDER BY stock_kg ASC LIMIT 10'
-      );
-      dashboardData.lowStock = lowStock;
-    } catch (err) {
-      console.error('Error getting low stock:', err);
-    }
-    
-    try {
-      // Get recent transactions
-      const [recentTransactions] = await pool.execute(`
-        SELECT t.total, t.actual_weight_kg, c.name as customer_name, p.name as product_name, t.created_at
-        FROM transactions t 
-        JOIN customers c ON t.customer_id = c.id 
-        JOIN products p ON t.product_id = p.id 
-        ORDER BY t.created_at DESC LIMIT 5
-      `);
-      dashboardData.recentTransactions = recentTransactions;
-    } catch (err) {
-      console.error('Error getting recent transactions:', err);
-    }
-
-    try {
-      // Get total stock
-      const [totalStock] = await pool.execute(
+      const [stockResult] = await connection.execute(
         'SELECT COALESCE(SUM(stock_kg), 0) as total_kg FROM products WHERE is_active = TRUE'
       );
-      dashboardData.totalStockKg = parseFloat(totalStock[0].total_kg) || 0;
+      dashboardData.totalStockKg = parseFloat(stockResult[0]?.total_kg) || 0;
+      dashboardData.debug.queries.push('✅ Total stock');
     } catch (err) {
-      console.error('Error getting total stock:', err);
+      console.error('❌ Total stock error:', err.message);
+      dashboardData.debug.errors.push('Total stock: ' + err.message);
     }
 
-    res.json(dashboardData);
-  } catch (error) {
-    console.error('Dashboard error:', error);
+    // 4. Get today's transactions (safer approach)
+    try {
+      const [transResult] = await connection.execute(`
+        SELECT 
+          COUNT(DISTINCT COALESCE(transaction_no, CONCAT('TRX', id))) as count,
+          COALESCE(SUM(total), 0) as revenue
+        FROM transactions 
+        WHERE DATE(COALESCE(transaction_date, created_at)) = CURDATE()
+          AND status = 'completed'
+      `);
+      
+      dashboardData.totalTransactions = transResult[0]?.count || 0;
+      dashboardData.totalRevenue = parseFloat(transResult[0]?.revenue) || 0;
+      dashboardData.debug.queries.push('✅ Today transactions');
+    } catch (err) {
+      console.error('❌ Today transactions error:', err.message);
+      dashboardData.debug.errors.push('Today transactions: ' + err.message);
+      
+      // Fallback: try simpler query
+      try {
+        const [simpleCount] = await connection.execute(
+          'SELECT COUNT(*) as count FROM transactions WHERE DATE(created_at) = CURDATE()'
+        );
+        dashboardData.totalTransactions = simpleCount[0]?.count || 0;
+        dashboardData.debug.queries.push('✅ Simple transaction count (fallback)');
+      } catch (fallbackErr) {
+        console.error('❌ Fallback transaction count failed:', fallbackErr.message);
+        dashboardData.debug.errors.push('Fallback transaction count: ' + fallbackErr.message);
+      }
+    }
+
+    // 5. Get low stock products (safe query)
+    try {
+      const [lowStockResult] = await connection.execute(`
+        SELECT id, code, name, stock_kg, min_stock_kg, category
+        FROM products 
+        WHERE stock_kg < min_stock_kg 
+          AND is_active = TRUE 
+        ORDER BY stock_kg ASC 
+        LIMIT 10
+      `);
+      dashboardData.lowStock = lowStockResult || [];
+      dashboardData.debug.queries.push('✅ Low stock products');
+    } catch (err) {
+      console.error('❌ Low stock error:', err.message);
+      dashboardData.debug.errors.push('Low stock: ' + err.message);
+    }
+
+    // 6. Get recent transactions (simplified)
+    try {
+      const [recentResult] = await connection.execute(`
+        SELECT 
+          t.id,
+          t.total, 
+          t.actual_weight_kg,
+          t.created_at,
+          COALESCE(c.name, 'Unknown Customer') as customer_name,
+          COALESCE(p.name, 'Unknown Product') as product_name
+        FROM transactions t 
+        LEFT JOIN customers c ON t.customer_id = c.id 
+        LEFT JOIN products p ON t.product_id = p.id 
+        ORDER BY t.created_at DESC 
+        LIMIT 5
+      `);
+      dashboardData.recentTransactions = recentResult || [];
+      dashboardData.debug.queries.push('✅ Recent transactions');
+    } catch (err) {
+      console.error('❌ Recent transactions error:', err.message);
+      dashboardData.debug.errors.push('Recent transactions: ' + err.message);
+    }
+
+    // Remove debug info in production
+    if (process.env.NODE_ENV === 'production') {
+      delete dashboardData.debug;
+    }
+
+    console.log(`✅ Dashboard loaded - ${dashboardData.debug?.queries.length || 0} queries successful, ${dashboardData.debug?.errors.length || 0} errors`);
     
-    // Return minimal data instead of error
+    res.json(dashboardData);
+
+  } catch (error) {
+    console.error('❌ Dashboard critical error:', error);
+    
+    // Return safe minimal data
     res.json({
       totalProducts: 0,
       totalCustomers: 0,
@@ -1742,9 +1788,14 @@ app.get('/api/reports/dashboard', authenticateToken, async (req, res) => {
       totalStockKg: 0,
       lowStock: [],
       recentTransactions: [],
-      fallback: true,
-      error: error.message
+      error: 'Dashboard data unavailable: ' + error.message,
+      fallback: true
     });
+    
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 });
 
@@ -1882,6 +1933,192 @@ app.get('/api/reports/dashboard', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Dashboard error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+function generateBatchCode(description) {
+  const hash = crypto.createHash('md5').update(description.toLowerCase()).digest('hex').substring(0, 6);
+  const date = new Date().toISOString().split('T')[0].replace(/-/g, '');
+  return `BATCH-${date}-${hash.toUpperCase()}`;
+}
+
+// TAMBAHKAN function baru untuk generate nomor transaksi:
+async function generateTransactionNo(date = null) {
+  const connection = await pool.getConnection();
+  
+  try {
+    // Gunakan tanggal yang diberikan atau tanggal hari ini
+    const transDate = date ? new Date(date) : new Date();
+    
+    // Format tanggal: DD, MM, YY
+    const day = String(transDate.getDate()).padStart(2, '0');
+    const month = String(transDate.getMonth() + 1).padStart(2, '0'); 
+    const year = String(transDate.getFullYear()).slice(-2); // 2 digit terakhir
+    
+    // Format tanggal untuk query (YYYY-MM-DD)
+    const queryDate = transDate.toISOString().split('T')[0];
+    
+    console.log(`🔢 Generating transaction number for date: ${queryDate}`);
+    
+    // Cari nomor urut terakhir untuk hari ini
+    const [result] = await connection.execute(`
+      SELECT transaction_no 
+      FROM transactions 
+      WHERE DATE(COALESCE(transaction_date, created_at)) = ?
+        AND transaction_no LIKE ?
+      ORDER BY transaction_no DESC 
+      LIMIT 1
+    `, [queryDate, `RILS${day}${month}${year}%`]);
+    
+    let sequenceNumber = 1;
+    
+    if (result.length > 0) {
+      // Extract nomor urut dari transaksi terakhir
+      const lastTransNo = result[0].transaction_no;
+      console.log(`📋 Last transaction number: ${lastTransNo}`);
+      
+      // Extract 2 digit terakhir (nomor urut)
+      const lastSequence = lastTransNo.slice(-2);
+      sequenceNumber = parseInt(lastSequence) + 1;
+      
+      console.log(`➡️  Next sequence number: ${sequenceNumber}`);
+    }
+    
+    // Format nomor urut menjadi 2 digit
+    const formattedSequence = String(sequenceNumber).padStart(2, '0');
+    
+    // Gabungkan: RILS + DD + MM + YY + NO
+    const transactionNo = `RILS${day}${month}${year}${formattedSequence}`;
+    
+    console.log(`✅ Generated transaction number: ${transactionNo}`);
+    
+    return transactionNo;
+    
+  } catch (error) {
+    console.error('❌ Error generating transaction number:', error);
+    
+    // Fallback: gunakan timestamp jika ada error
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = String(now.getFullYear()).slice(-2);
+    const time = now.getTime().toString().slice(-2); // 2 digit terakhir timestamp
+    
+    const fallbackNo = `RILS${day}${month}${year}${time}`;
+    console.log(`⚠️  Using fallback transaction number: ${fallbackNo}`);
+    
+    return fallbackNo;
+    
+  } finally {
+    connection.release();
+  }
+}
+
+app.post('/api/debug/update-transaction-numbers', authenticateToken, async (req, res) => {
+  // Only allow admin
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+
+  const connection = await pool.getConnection();
+  
+  try {
+    await connection.beginTransaction();
+    
+    console.log('🔄 Updating existing transaction numbers...');
+    
+    // Get all transactions ordered by date and id
+    const [transactions] = await connection.execute(`
+      SELECT id, transaction_date, created_at
+      FROM transactions 
+      ORDER BY COALESCE(transaction_date, DATE(created_at)), id
+    `);
+    
+    console.log(`Found ${transactions.length} transactions to update`);
+    
+    let updated = 0;
+    let dateCounters = {}; // Track daily counters
+    
+    for (const trans of transactions) {
+      const transDate = trans.transaction_date || trans.created_at.toISOString().split('T')[0];
+      const dateObj = new Date(transDate);
+      
+      // Format date components
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const year = String(dateObj.getFullYear()).slice(-2);
+      
+      // Get or initialize counter for this date
+      if (!dateCounters[transDate]) {
+        dateCounters[transDate] = 1;
+      }
+      
+      // Generate new transaction number
+      const sequence = String(dateCounters[transDate]).padStart(2, '0');
+      const newTransNo = `RILS${day}${month}${year}${sequence}`;
+      
+      // Update transaction
+      await connection.execute(
+        'UPDATE transactions SET transaction_no = ? WHERE id = ?',
+        [newTransNo, trans.id]
+      );
+      
+      console.log(`Updated transaction ID ${trans.id}: ${newTransNo}`);
+      
+      dateCounters[transDate]++;
+      updated++;
+    }
+    
+    await connection.commit();
+    
+    res.json({
+      message: `Successfully updated ${updated} transaction numbers`,
+      updated: updated,
+      dateCounters: dateCounters
+    });
+    
+  } catch (error) {
+    await connection.rollback();
+    console.error('Update transaction numbers error:', error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    connection.release();
+  }
+});
+
+// ===== STEP 4: TAMBAHKAN ENDPOINT TEST GENERATOR =====
+
+app.get('/api/debug/test-transaction-number', authenticateToken, async (req, res) => {
+  try {
+    const testDate = req.query.date || null; // Format: YYYY-MM-DD
+    
+    console.log(`🧪 Testing transaction number generation for date: ${testDate || 'today'}`);
+    
+    // Generate 5 test numbers
+    const testNumbers = [];
+    for (let i = 0; i < 5; i++) {
+      const transNo = await generateTransactionNo(testDate);
+      testNumbers.push(transNo);
+      
+      // Simulate delay
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    res.json({
+      testDate: testDate || new Date().toISOString().split('T')[0],
+      generatedNumbers: testNumbers,
+      format: 'RILSDDMMYYNO',
+      explanation: {
+        RILS: 'Fixed prefix',
+        DD: 'Day (01-31)', 
+        MM: 'Month (01-12)',
+        YY: 'Year 2 digits',
+        NO: 'Daily sequence (01-99)'
+      }
+    });
+    
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Penjualan Ikan - Enhanced</title>
+    <title>Rumah Ikan Laut Segar</title>
     <style>
         * {
             margin: 0;
@@ -465,7 +465,7 @@
         <div class="header">
             <div class="header-info">
                 <div>
-                    <h1>SISTEM PENJUALAN IKAN LAUT - ENHANCED</h1>
+                    <h1>Rumah Ikan Laut Segar</h1>
                     <span>User: <span id="currentUser">Admin</span> | <span id="currentDateTime"></span></span>
                 </div>
                 <button class="btn btn-danger" onclick="logout()">Logout</button>
@@ -532,7 +532,13 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label>No. Transaksi:</label>
-                                <input type="text" id="transactionNo" readonly>
+                                <!-- GANTI input field lama dengan yang baru ini: -->
+                                <input type="text" id="transactionNo" readonly 
+                                    style="background-color: #f8f9fa; color: #6c757d; font-weight: bold;" 
+                                    placeholder="Auto Generate: RILS10082501">
+                                <small style="color: #6c757d; font-size: 11px; display: block; margin-top: 3px;">
+                                    📋 Format: RILS[DD][MM][YY][NO] - Generated automatically by system
+                                </small>
                             </div>
                             <div class="form-group">
                                 <label>Tanggal:</label>
@@ -1224,22 +1230,20 @@
 
         // Transaction Functions
         function initTransaction() {
-            // Generate transaction number
-            const now = new Date();
-            const transNo = 'TRX' + now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + 
-                           String(now.getDate()).padStart(2,'0') + String(now.getHours()).padStart(2,'0') + 
-                           String(now.getMinutes()).padStart(2,'0') + String(now.getSeconds()).padStart(2,'0');
-            document.getElementById('transactionNo').value = transNo;
-            
-            // Load dropdowns
-            loadProductDropdown();
-            loadCustomerDropdown();
-            
-            // Reset items
-            transactionItems = [];
-            itemCounter = 0;
-            updateItemsTable();
-        }
+    // Nomor transaksi akan di-generate otomatis oleh server
+    document.getElementById('transactionNo').value = 'Auto Generate (RILS...)';
+    document.getElementById('transactionNo').style.backgroundColor = '#f8f9fa';
+    document.getElementById('transactionNo').style.color = '#6c757d';
+    
+    // Load dropdowns
+    loadProductDropdown();
+    loadCustomerDropdown();
+    
+    // Reset items
+    transactionItems = [];
+    itemCounter = 0;
+    updateItemsTable();
+}
 
         async function loadProductDropdown() {
             if (products.length === 0) await loadProducts();
